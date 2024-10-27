@@ -1,0 +1,125 @@
+<!-- addhaematology.html -->
+{% extends "base.html" %}
+{% load form_extras %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Add Haematology Test</h2>
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="id_test_id">Test ID:</label>
+                <input type="text" name="test_id" value="{{ next_test_id }}" class="form-control" readonly>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="id_patient_id">Patient ID:</label>
+                {{ form.patient_id|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6 mb-3 align-self-end">
+                <button type="button" class="btn btn-primary" onclick="fetchPatientDetails()">Show Details</button>
+            </div>
+        </div>
+
+        <!-- Patient Details Card -->
+        <div class="card patient-details-card mb-4" id="patient_details">
+            <div class="card-header">Patient Details</div>
+            <div class="card-body">
+                <p class="text-muted">Enter a valid Patient ID and click "Show Details" to see the information.</p>
+            </div>
+        </div>
+
+        <!-- Haematology Test Fields -->
+        <div class="form-row">
+            <div class="col-md-4 mb-3">
+                {{ form.test_date.label_tag }}: {{ form.test_date|add_class:"form-control" }}
+            </div>
+        </div>
+        <div class="form-row">
+            {% for field in form %}
+                {% if field.name not in 'patient_id test_date' %}
+                    <div class="col-md-4 mb-3">
+                        {{ field.label_tag }}: {{ field|add_class:"form-control" }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Email Options -->
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <input type="checkbox" id="send_patient_email" name="send_patient_email">
+                <label for="send_patient_email">Send Email to Patient</label>
+            </div>
+            <div class="col-md-6 mb-3">
+                <input type="checkbox" id="send_doctor_email" name="send_doctor_email">
+                <label for="send_doctor_email">Send Email to Doctor</label>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-success">Save</button>
+                <a href="{% url 'viewhaematology' %}" class="btn btn-secondary">Cancel</a>
+
+                <!-- Conditionally display the Download PDF button -->
+                {% if test_id %}
+                    <a href="{% url 'generate_haematology_report' test_id=test_id %}" class="btn btn-primary">Download PDF</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function fetchPatientDetails() {
+        var patientId = document.getElementById('id_patient_id').value;
+        if (patientId) {
+            fetch(`/get_patient_data?patient_id=${patientId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById('patient_details').innerHTML = `
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="col-md-4 mb-3">
+                                        <p><strong>Name:</strong> ${data.patientname}</p>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <p><strong>Age:</strong> ${data.age}</p>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <p><strong>Gender:</strong> ${data.gender}</p>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-6 mb-3">
+                                        <p><strong>Mobile:</strong> ${data.mobile}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <p><strong>Email:</strong> ${data.email}</p>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-6 mb-3">
+                                        <p><strong>Referred By Doctor:</strong> ${data.doctorname ? data.doctorname : 'N/A'}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <p><strong>Doctor Email:</strong> ${data.doctoremail ? data.doctoremail : 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => alert('An error occurred: ' + error));
+        }
+    }
+</script>
+
+{% endblock content %}

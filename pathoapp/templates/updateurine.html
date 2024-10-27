@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="margin-top:30px">
+    <h2 class="text-center">Update Urine Test</h2>
+    
+    <form method="post" action="{% url 'updateurine' urine_test.testid %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Display Patient Information -->
+        <div class="form-group">
+            <label for="patient_name">Patient Name:</label>
+            <input type="text" id="patient_name" class="form-control" value="{{ urine_test.patient_name }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="patient_age">Patient Age:</label>
+            <input type="text" id="patient_age" class="form-control" value="{{ urine_test.patient_age }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="patient_gender">Patient Gender:</label>
+            <input type="text" id="patient_gender" class="form-control" value="{{ urine_test.patient_gender }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="patient_mobile">Patient Mobile:</label>
+            <input type="text" id="patient_mobile" class="form-control" value="{{ urine_test.patient_mobile }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="patient_email">Patient Email:</label>
+            <input type="text" id="patient_email" class="form-control" value="{{ urine_test.patient_email }}" readonly>
+        </div>
+
+        <!-- Render the editable UrineTest fields -->
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+
+    <!-- Display any non-field errors -->
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

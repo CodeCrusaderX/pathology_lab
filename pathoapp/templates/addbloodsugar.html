@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Blood Sugar Test</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .btn-group {
+            margin-top: 20px;
+        }
+        .form-group-label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container form-container">
+    <h2 class="text-center">Blood Sugar Test</h2>
+    
+    <form method="POST" action="{% url 'addbloodsugar' %}">
+        {% csrf_token %}
+        
+        <!-- Patient ID Input and Fetch Details -->
+        <div class="form-group row">
+            <label for="patientid" class="col-sm-3 col-form-label">Patient ID</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" id="patientid" name="patientid">
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-primary" id="show-details">Show Details</button>
+            </div>
+        </div>
+        
+        <!-- Patient Details -->
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Patient's Name</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="patient_name" name="patient_name" readonly>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Age</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="patient_age" name="patient_age" readonly>
+            </div>
+            <label class="col-sm-2 col-form-label">Gender</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="patient_gender" name="patient_gender" readonly>
+            </div>
+        </div>
+
+        <!-- Blood Sugar Investigation -->
+        <div class="section-title">Investigation</div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Blood Sugar (Fasting)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="blood_sugar_fasting" name="blood_sugar_fasting">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Blood Sugar (PP)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="blood_sugar_pp" name="blood_sugar_pp">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Blood Sugar (Random)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="blood_sugar_random" name="blood_sugar_random">
+            </div>
+        </div>
+
+        <!-- Urine Examination -->
+        <div class="section-title">Urine Examination</div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Urine Sugar (Fasting)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="urine_sugar_fasting" name="urine_sugar_fasting">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Urine Sugar (PP)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="urine_sugar_pp" name="urine_sugar_pp">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Urine Sugar (Random)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="urine_sugar_random" name="urine_sugar_random">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Acetone</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="acetone" name="acetone">
+            </div>
+        </div>
+
+        <!-- Other Test and Remark -->
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Other Test</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="other_test" name="other_test">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Remark</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="remark" name="remark">
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success">Add</button>
+            <button type="button" class="btn btn-secondary">Refresh</button>
+            <button type="button" class="btn btn-primary">Find</button>
+            <button type="button" class="btn btn-danger">Delete</button>
+            <button type="button" class="btn btn-dark">Exit</button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    document.getElementById("show-details").addEventListener("click", function() {
+        // Fetch patient details using AJAX and fill in the fields
+        const patientId = document.getElementById("patientid").value;
+        
+        if (patientId) {
+            fetch(`/get_patient_details/?patientid=${patientId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("patient_name").value = data.name;
+                    document.getElementById("patient_age").value = data.age;
+                    document.getElementById("patient_gender").value = data.gender;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    });
+</script>
+
+</body>
+</html>
