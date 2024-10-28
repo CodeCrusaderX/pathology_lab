@@ -1,37 +1,55 @@
-# Start from a base Python image
-FROM python:3.9-slim
+# # Start from a base Python image
+# FROM python:3.9-slim
 
-# Set environment variables for Python (optional but recommended)
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+# # Set environment variables for Python (optional but recommended)
+# ENV PYTHONUNBUFFERED=1
+# ENV PYTHONDONTWRITEBYTECODE=1
 
-# Set a working directory
-WORKDIR /app
+# # Set a working directory
+# WORKDIR /app
 
-# Copy the application files to the container
-COPY . /app
+# # Copy the application files to the container
+# COPY . /app
 
-# # Install dependencies
+# # # Install dependencies
+# # RUN python -m venv /opt/venv && \
+# #     . /opt/venv/bin/activate && \
+# #     pip install --upgrade pip && \
+# #     pip install --no-cache-dir -r requirements.txt
+
+
+# # Expose port 8000 for Django
+# EXPOSE 8000
+
+# # Run Django using gunicorn as the server
+# CMD ["/opt/venv/bin/gunicorn", "pathoproject.wsgi:application", "--bind", "0.0.0.0:8000"]
+
+# RUN apt-get update && \
+#     apt-get install -y build-essential libssl-dev libffi-dev python3-dev && \
+#     rm -rf /var/lib/apt/lists/*
+
+# COPY requirements.txt /app/requirements.txt
+
+# # Set up virtual environment and install dependencies
 # RUN python -m venv /opt/venv && \
 #     . /opt/venv/bin/activate && \
-#     pip install --upgrade pip && \
-#     pip install --no-cache-dir -r requirements.txt
+#     pip install --no-cache-dir -r /app/requirements.txt
 
 
-# Expose port 8000 for Django
-EXPOSE 8000
+# Use the official Python image from the Docker Hub
+FROM python:3.9-slim
 
-# Run Django using gunicorn as the server
-CMD ["/opt/venv/bin/gunicorn", "pathoproject.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Set the working directory
+WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y build-essential libssl-dev libffi-dev python3-dev && \
-    rm -rf /var/lib/apt/lists/*
+# Copy the requirements file
+COPY requirements.txt .
 
-COPY requirements.txt /app/requirements.txt
+# Install dependencies directly
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Set up virtual environment and install dependencies
-RUN python -m venv /opt/venv && \
-    . /opt/venv/bin/activate && \
-    pip install --no-cache-dir -r /app/requirements.txt
+# Copy the application code
+COPY . .
 
+# Specify the command to run the application
+CMD ["python", "manage.py"]  
